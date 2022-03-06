@@ -11,7 +11,7 @@ def check_events(game):
     DOWN = Vector(0,1)
     """Respond to key presses and mouse events."""
     for e in pg.event.get():
-        if e.type == pg.QUIT:
+        if e.type == pg.QUIT:       
             sys.exit()
         elif e.type == pg.KEYDOWN:
             key = e.key
