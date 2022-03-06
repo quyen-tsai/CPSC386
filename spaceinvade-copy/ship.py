@@ -35,8 +35,8 @@ class Ship():
         if self.moving_down and self.rect.bottom < self.screen_rect.bottom:
             self.rect.centery += self.settings.ship_speed_factor
 
-        if self.rect.bottom < self.screen_rect.bottom and self.settings.create_new_aliens:
-            self.rect.centery += self.settings.screen_height / 120
+        # if self.rect.bottom < self.screen_rect.bottom and self.settings.create_new_aliens:
+        #     self.rect.centery += self.settings.screen_height / 120
 
         if self.timer < 25:
             self.timer += 1

@@ -4,7 +4,7 @@ from bullet import Bullet
 from random import randint
 
 class EventLoop:
-    def __init__(self, settings, screen, ships, fields, stats, scoreboard, finished):
+    def __init__(self, game):
         self.finished = finished
         self.settings = settings
         self.screen = screen

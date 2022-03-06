@@ -140,6 +140,7 @@ class Settings:
         self.laser_color = 60, 60, 60
         self.alien_speed_factor = 0.3
         self.fleet_drop_speed = 50
+        self.ship_speed_factor = 1
         # fleet_direction of 1 represents right; -1 represents left.
         self.fleet_direction = 1
         self.ship_limit = 3
@@ -280,59 +281,105 @@ class Laser(Sprite):
     def draw(self):
         pg.draw.rect(self.screen, self.color, self.rect)
 
+class Ship():
 
-class Ship:
     def __init__(self, game):
+        super(Ship, self).__init__()
         self.game = game
         self.screen = game.screen
+        self.settings = self.game.settings
+
+        self.index = 0
+        self.type = 0
+        self.timer = 0
         self.image = pg.image.load('images/ship.bmp')
         self.rect = self.image.get_rect()
-        self.screen_rect = self.screen.get_rect()
-
+        self.screen_rect = self.game.screen.get_rect()
         self.rect.centerx = self.screen_rect.centerx
         self.rect.bottom = self.screen_rect.bottom
-        self.v = Vector()
-
-    def moving(self, vector): self.v = vector
-
-    def center_ship(self):
-        self.rect.centerx = self.screen_rect.centerx
-        self.rect.bottom = self.screen_rect.bottom
-
-    def ship_hit(self):
-        # Decrement ships_left.
-        if self.game.stats.ships_left > 1:
-            print(self.game.stats.ships_left)
-            self.game.stats.ships_left -= 1
-            sleep(0.5)
-        else:
-            print("Game Is over")
-            self.game.stats.game_active = False
-        # Empty the list of aliens and bullets.
-        self.game.aliens.empty()
-        self.game.lasers.empty()
-        # Create a new fleet and center the ship.
-        self.game.alien.create_fleet()
-        self.game.ship.center_ship()
-        # Pause.
-
+        self.moving_right = False
+        self.moving_left = False
+        self.moving_up = False
+        self.moving_down = False
 
     def update(self):
-        if self.rect.right == self.screen_rect.right:
-            self.rect.centerx -= 1
-        elif self.rect.left == self.screen_rect.left:
-            self.rect.centerx += 1
-        else:
-            self.rect.centerx += self.v.x
+        if self.moving_right and self.rect.right < self.screen_rect.right:
+            self.rect.centerx += self.settings.ship_speed_factor
+        if self.moving_left and self.rect.left > 0:
+            self.rect.centerx -= self.settings.ship_speed_factor
+        if self.moving_up and self.rect.top > 0:
+            self.rect.centery -= self.settings.ship_speed_factor
+        if self.moving_down and self.rect.bottom < self.screen_rect.bottom:
+            self.rect.centery += self.settings.ship_speed_factor
 
-        if self.rect.top == self.screen_rect.top:
-            self.rect.centery += 1
-        if self.rect.bottom == self.screen_rect.bottom:
-            self.rect.centery -= 1
-        else:
-            self.rect.centery += self.v.y
+        # if self.rect.bottom < self.screen_rect.bottom:
+        #     self.rect.centery += self.settings.screen_height / 120
 
-    def draw(self): self.screen.blit(self.image, self.rect)
+        if self.timer < 25:
+            self.timer += 1
+        else:
+            self.index += 1
+            if self.index >= 8:
+                self.index = 0
+            self.timer = 0
+
+
+
+    def draw(self):
+        self.screen.blit(self.image, self.rect)
+
+# class Ship:
+#     def __init__(self, game):
+#         self.game = game
+#         self.screen = game.screen
+#         self.image = pg.image.load('images/ship.bmp')
+#         self.rect = self.image.get_rect()
+#         self.screen_rect = self.screen.get_rect()
+#
+#         self.rect.centerx = self.screen_rect.centerx
+#         self.rect.bottom = self.screen_rect.bottom
+#         self.v = Vector()
+#
+#     def moving(self, vector): self.v = vector
+#
+#     def center_ship(self):
+#         self.rect.centerx = self.screen_rect.centerx
+#         self.rect.bottom = self.screen_rect.bottom
+#
+#     def ship_hit(self):
+#         # Decrement ships_left.
+#         if self.game.stats.ships_left > 1:
+#             print(self.game.stats.ships_left)
+#             self.game.stats.ships_left -= 1
+#             sleep(0.5)
+#         else:
+#             print("Game Is over")
+#             self.game.stats.game_active = False
+#         # Empty the list of aliens and bullets.
+#         self.game.aliens.empty()
+#         self.game.lasers.empty()
+#         # Create a new fleet and center the ship.
+#         self.game.alien.create_fleet()
+#         self.game.ship.center_ship()
+#         # Pause.
+#
+#
+#     def update(self):
+#         if self.rect.right == self.screen_rect.right:
+#             self.rect.centerx -= 1
+#         elif self.rect.left == self.screen_rect.left:
+#             self.rect.centerx += 1
+#         else:
+#             self.rect.centerx += self.v.x
+#
+#         if self.rect.top == self.screen_rect.top:
+#             self.rect.centery += 1
+#         if self.rect.bottom == self.screen_rect.bottom:
+#             self.rect.centery -= 1
+#         else:
+#             self.rect.centery += self.v.y
+#
+#     def draw(self): self.screen.blit(self.image, self.rect)
 
 
 class Game:
@@ -374,7 +421,7 @@ class Game:
         finished = False
         while not finished:
             gf.check_events(game=self)  # exits game if QUIT pressed
-            if self.stats.game_active and not self.menu_running:
+            if self.stats.game_active: #and not self.menu_running:
                 self.update()
                 self.draw()
             else:
