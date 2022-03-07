@@ -33,11 +33,11 @@ def check_events(game):
         if event.type == pg.QUIT:
             sys.exit()
         if event.type == pg.KEYDOWN:
-            check_keydown_events(event, ship)
+            check_keydown_events(event, ship, game)
         if event.type == pg.KEYUP:
             check_keyup_events(event, ship)
 
-def check_keydown_events(event, ship):
+def check_keydown_events(event, ship, game):
     if event.key == pg.K_LEFT:
         ship.moving_left = True
     if event.key == pg.K_RIGHT:
@@ -46,6 +46,9 @@ def check_keydown_events(event, ship):
         ship.moving_up = True
     if event.key == pg.K_DOWN:
         ship.moving_down = True
+    if event.key == pg.K_SPACE:
+        newlaser = Laser(game)
+        game.lasers.add(newlaser)
     if event.key == pg.K_q:
         sys.exit()
 
