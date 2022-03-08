@@ -138,7 +138,7 @@ class Settings:
         self.laser_width = 3
         self.laser_height = 15
         self.laser_color = 60, 60, 60
-        self.alien_speed_factor = 0.3
+        self.alien_speed_factor = 1
         self.fleet_drop_speed = 50
         self.ship_speed_factor = 1
         # fleet_direction of 1 represents right; -1 represents left.
@@ -172,8 +172,8 @@ class Alien(Sprite):
         self.x = float(self.rect.x)
 
     def update(self):
-        self.x += (self.setting.alien_speed_factor * self.setting.fleet_direction)
-        self.rect.x = self.x
+        self.rect.x += (self.setting.alien_speed_factor * self.setting.fleet_direction)
+
 
     def check_edges(self):
         """Return True if alien is at edge of screen."""
@@ -227,6 +227,7 @@ class Alien(Sprite):
         """Drop the entire fleet and change the fleet's direction."""
         for alien in self.game.aliens.sprites():
             alien.rect.y += self.setting.fleet_drop_speed
+            alien.rect.x += 2 * -self.setting.fleet_direction
         self.setting.fleet_direction *= -1
 
     def check_aliens_bottom(self):
@@ -312,7 +313,7 @@ class Ship():
         if self.moving_down and self.rect.bottom < self.screen_rect.bottom:
             self.rect.centery += self.settings.ship_speed_factor
 
-        # if self.rect.bottom < self.screen_rect.bottom:
+        # if self.rect.bottom  < self.screen_rect.bottom:
         #     self.rect.centery += self.settings.screen_height / 120
 
         if self.timer < 25:
