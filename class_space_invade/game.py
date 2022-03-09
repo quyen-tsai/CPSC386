@@ -6,6 +6,7 @@ from time import sleep
 from stats import Stats
 from scoreboard import Scoreboard
 from laser import Lasers
+from laser import Enemy_Bullet
 from ship import Ship
 from alien import AlienFleet
 from settings import Settings

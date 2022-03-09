@@ -5,7 +5,7 @@ from copy import copy
 from random import randint
 # from alien import Alien
 # from stats import Stats
-
+from spritesheet import SpriteSheet
 
 class Lasers:
     def __init__(self, game):
@@ -62,3 +62,39 @@ class Laser(Sprite):
         self.rect.x, self.rect.y = self.center.x, self.center.y
 
     def draw(self): pg.draw.rect(self.screen, color=self.color, rect=self.rect)
+
+
+class Enemy_Bullet(Sprite):
+    def __init__(self, ai_settings, screen, alien):
+        super(Enemy_Bullet, self).__init__()
+        self.screen = screen
+        self.sprite = SpriteSheet('images/enemy_laser.png', 2)
+
+        self.index = 0
+        self.type = 0
+        self.timer = 0
+        self.image = self.sprite.image_get((8 * self.index, 24 * self.type, 8, 24))
+        self.rect = pg.Rect(0, 0, ai_settings.bullet_width, ai_settings.bullet_height)
+        self.rect.centerx = alien.rect.centerx
+        self.rect.bottom = alien.rect.bottom
+
+        self.y = float(self.rect.y)
+
+        self.color = ai_settings.bullet_color
+        self.speed_factor = ai_settings.bullet_speed_factor
+
+    def update_enemy_bullet(self):
+        self.y += self.speed_factor
+        self.rect.y = self.y
+
+        if self.timer < 10:
+            self.timer += 1
+        else:
+            self.index += 1
+            if self.index >= 4:
+                self.index = 0
+            self.image = self.sprite.image_get((8 * self.index, 24 * self.type, 8, 24))
+            self.timer = 0
+
+    def show_enemy_bullet(self):
+        self.screen.blit(self.image, self.rect)

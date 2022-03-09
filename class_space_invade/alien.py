@@ -3,6 +3,7 @@ from vector import Vector
 from pygame.sprite import Sprite, Group
 from timer import Timer
 from random import randint
+from laser import Enemy_Bullet
 
 
 
@@ -23,6 +24,7 @@ class AlienFleet:
         alien = Alien(self.game, image_list=AlienFleet.alien_images)
         self.alien_h, self.alien_w = alien.rect.height, alien.rect.width
         self.fleet = Group()
+        self.enemy_bullets = Group()
         self.create_fleet()
         self.timer = 0
 
@@ -86,10 +88,28 @@ class AlienFleet:
             if not self.ship.is_dying(): self.ship.hit() 
         for alien in self.fleet.sprites():
             alien.update(delta_s=delta_s)
+        self.update_bullet()
+
+    def update_bullet(self):
+        delta_s = Vector(0, 0)
+        for enemy_bullet in self.enemy_bullets:
+            enemy_bullet.update_enemy_bullet()
+            if enemy_bullet.rect.top > self.screen_rect.height:
+                self.enemy_bullets.remove(enemy_bullet)
+        for alien in self.fleet.sprites():
+            self.timer += randint(10, 100)
+            if self.timer > 2000 * len(self.fleet):
+                self.enemy_bullets.add(Enemy_Bullet(self.settings, self.screen, alien))
+                self.timer = 0
+            alien.update(delta_s=delta_s)
 
     def draw(self):
         for alien in self.fleet.sprites():
             alien.draw()
+        for bullet in self.enemy_bullets:
+            bullet.show_enemy_bullet()
+
+
 
 
 class Alien(Sprite):
