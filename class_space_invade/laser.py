@@ -6,6 +6,8 @@ from random import randint
 # from alien import Alien
 # from stats import Stats
 from spritesheet import SpriteSheet
+from timer import Timer
+from mystery import Mystery
 
 class Lasers:
     def __init__(self, game):
@@ -13,12 +15,15 @@ class Lasers:
         self.stats = game.stats
         self.alien_fleet = game.alien_fleet
         self.lasers = Group()
+        self.sound = game.sound
 
     def add(self, laser): self.lasers.add(laser)
     def empty(self): self.lasers.empty()
     def fire(self): 
       new_laser = Laser(self.game)
       self.lasers.add(new_laser)
+      snd = self.sound
+      snd.play_fire_phaser()
 
     def update(self):
         for laser in self.lasers.copy():
@@ -27,6 +32,13 @@ class Lasers:
         collisions = pg.sprite.groupcollide(self.alien_fleet.fleet, self.lasers, False, True)
         for alien in collisions: 
           if not alien.dying: alien.hit()
+
+
+        for mystery in pg.sprite.groupcollide(self.game.Mys, self.lasers, False, True):
+            mystery.mysteryEntered.stop()
+            mystery.hit()
+            self.game.Mys.add(Mystery(game=self.game))
+
 
         if self.alien_fleet.length() == 0:  
             self.stats.level_up()
@@ -48,7 +60,6 @@ class Laser(Sprite):
         self.settings = game.settings
         self.w, self.h = self.settings.laser_width, self.settings.laser_height
         self.ship = game.ship
-
         self.rect = pg.Rect(0, 0, self.w, self.h)
         self.center = copy(self.ship.center)
         # print(f'center is at {self.center}')
@@ -65,11 +76,11 @@ class Laser(Sprite):
 
 
 class Enemy_Bullet(Sprite):
-    def __init__(self, ai_settings, screen, alien):
+    def __init__(self, ai_settings, screen, alien,game):
         super(Enemy_Bullet, self).__init__()
+        self.game = game
         self.screen = screen
         self.sprite = SpriteSheet('images/enemy_laser.png', 2)
-
         self.index = 0
         self.type = 0
         self.timer = 0
@@ -77,7 +88,7 @@ class Enemy_Bullet(Sprite):
         self.rect = pg.Rect(0, 0, ai_settings.bullet_width, ai_settings.bullet_height)
         self.rect.centerx = alien.rect.centerx
         self.rect.bottom = alien.rect.bottom
-
+        self.sound = game.sound
         self.y = float(self.rect.y)
 
         self.color = ai_settings.bullet_color
@@ -95,6 +106,7 @@ class Enemy_Bullet(Sprite):
                 self.index = 0
             self.image = self.sprite.image_get((8 * self.index, 24 * self.type, 8, 24))
             self.timer = 0
+
 
     def show_enemy_bullet(self):
         self.screen.blit(self.image, self.rect)

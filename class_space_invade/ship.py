@@ -4,7 +4,7 @@ from timer import Timer
 from pygame.sprite import Sprite, Group
 
 class Ship(Sprite):
-  exploding_images = [pg.image.load(f'images/explode{n}.png') for n in range(8)]
+  exploding_images =[pg.image.load(f'images/rainbow_explode{n}.png') for n in range(8)]
   images = [pg.image.load(f'images/green_alien{n}.png') for n in range(2)]
    
   def __init__(self, game):
@@ -16,14 +16,14 @@ class Ship(Sprite):
     self.lasers = None
     self.stats = game.stats
     self.image = pg.image.load('images/ship.bmp')
-
+    self.sound = game.sound
     self.rect = self.image.get_rect()
     self.screen_rect = self.screen.get_rect()
     self.center_bottom()
     self.v = Vector()
     self.firing = False
     self.frames = 0
-    self.exploding_timer = Timer(image_list=Ship.exploding_images, delay=200, is_loop=False)
+    self.exploding_timer = Timer(image_list=Ship.exploding_images, delay=100, is_loop=False)
     self.normal_timer = Timer(image_list=Ship.images, delay=1000, is_loop=True)
     self.timer = self.normal_timer
     self.dying = False
@@ -41,6 +41,7 @@ class Ship(Sprite):
   def toggle_firing(self): self.firing = not self.firing 
   def hit(self):  
     self.timer = self.exploding_timer
+    self.sound.play_ship_explosion()
     self.dying = True
   def is_dying(self): return self.dying  
   def die(self):

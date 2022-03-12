@@ -20,6 +20,11 @@ class Stats:
     def alien_hit(self, alien):
         self.score += alien.points
         self.highscore = max(self.score, self.highscore)
+
+    def mystery_hit(self, mystery):
+        self.score += mystery.score
+        self.highscore = max(self.score, self.highscore)
+
     def ship_hit(self):
         self.ships_left -= 1
         n = self.ships_left

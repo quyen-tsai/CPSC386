@@ -8,7 +8,7 @@ from laser import Enemy_Bullet
 
 
 class AlienFleet:
-    alien_exploding_images = [pg.image.load(f'images/rainbow_explode{n}.png') for n in range(8)]
+    alien_exploding_images = [pg.image.load(f'images/explode{n}.png') for n in range(8)]
     alien_images = [pg.image.load(f'images/alien1_{n}.png') for n in range(3)]
     alien_image2 = [pg.image.load(f'images/alien2_{n}.png') for n in range(3)]
     alien_image3 = [pg.image.load(f'images/alien3_{n}.png') for n in range(3)]
@@ -27,6 +27,7 @@ class AlienFleet:
         self.enemy_bullets = Group()
         self.create_fleet()
         self.timer = 0
+        self.sound = game.sound
 
     def create_fleet(self):
         n_cols = self.get_number_cols(alien_width=self.alien_w)
@@ -48,7 +49,7 @@ class AlienFleet:
     def set_ship(self, ship): self.ship = ship
     def create_alien(self, image, row, col,points):
         x = self.alien_w * (2 * col + 1)
-        y = (self.alien_h * (2 * row + 1)) / 2 + 200
+        y = (self.alien_h * (2 * row + 1)) / 2 + 100
         alien = Alien(game=self.game, ul=(x, y), v=self.v, image_list=image,point=points)
         self.fleet.add(alien)
 
@@ -84,11 +85,14 @@ class AlienFleet:
             self.v.x *= -1
             self.change_v(self.v)
             delta_s = Vector(0, self.settings.fleet_drop_speed)
-        if pg.sprite.spritecollideany(self.ship, self.fleet) or self.check_bottom():
+        if pg.sprite.spritecollideany(self.ship, self.fleet) or self.check_bottom() or pg.sprite.spritecollideany(self.ship, self.enemy_bullets):
             if not self.ship.is_dying(): self.ship.hit() 
         for alien in self.fleet.sprites():
             alien.update(delta_s=delta_s)
         self.update_bullet()
+        tick = pg.time.get_ticks()
+        if tick % 500 == 0:
+            self.update_bullet()
 
     def update_bullet(self):
         delta_s = Vector(0, 0)
@@ -97,10 +101,10 @@ class AlienFleet:
             if enemy_bullet.rect.top > self.screen_rect.height:
                 self.enemy_bullets.remove(enemy_bullet)
         for alien in self.fleet.sprites():
-            self.timer += randint(10, 100)
+            self.timer += randint(5, 20)
             if self.timer > 2000 * len(self.fleet):
-                self.enemy_bullets.add(Enemy_Bullet(self.settings, self.screen, alien))
-                self.timer = 0
+                self.enemy_bullets.add(Enemy_Bullet(self.settings, self.screen, alien,self.game))
+                self.timer = 5
             alien.update(delta_s=delta_s)
 
     def draw(self):
@@ -112,15 +116,17 @@ class AlienFleet:
 
 
 
+
+
 class Alien(Sprite):
-    def __init__(self, game, image_list, start_index=0, ul=(0, 100), v=Vector(1, 0), point = 1020):
+    def __init__(self, game, image_list, start_index = 0, ul=(0, 100), v=Vector(1, 0), point = 1020):
         super().__init__()
         self.game = game
         self.screen = game.screen
         self.settings = game.settings
         self.points = point
         self.stats = game.stats
-
+        self.sound = game.sound
         self.image = pg.image.load('images/alien0.bmp')
         self.screen_rect = self.screen.get_rect()
         self.rect = self.image.get_rect()
@@ -128,7 +134,7 @@ class Alien(Sprite):
         self.ul = Vector(ul[0], ul[1])   # position
         self.v = v                       # velocity
         self.image_list = image_list
-        self.exploding_timer = Timer(image_list=AlienFleet.alien_exploding_images, delay=200, 
+        self.exploding_timer = Timer(image_list=AlienFleet.alien_exploding_images, delay=50,
                                      start_index=start_index, is_loop=False)
         self.normal_timer = Timer(image_list=image_list, delay=1000, is_loop=True)
         self.timer = self.normal_timer
@@ -143,6 +149,7 @@ class Alien(Sprite):
     def hit(self): 
         self.stats.alien_hit(alien=self)
         self.timer = self.exploding_timer
+        self.sound.play_alien_explosion()
         self.dying = True
 
     def update(self, delta_s=Vector(0, 0)):

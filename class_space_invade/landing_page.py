@@ -23,8 +23,8 @@ class LandingPage:
     alien_one_imgs = [pg.image.load(f'images/alien2_{n}.png') for n in range(3)]
     alien_two_imgs = [pg.image.load(f'images/alien1_{n}.png') for n in range(3)]
     alien_three_imgs = [pg.image.load(f'images/green_alien{n}.png') for n in range(2)]
-    ufo_imgs = [pg.image.load(f'images/alien1_{n}.png') for n in range(3)]
-
+    ufo_imgs = [pg.image.load(f'images/alien4_{n}.png') for n in range(4)]
+    ufo_imgs  = [pg.transform.scale(image, (57, 58)) for image in ufo_imgs]
     def __init__(self, game):
         self.screen = game.screen
         self.landing_page_finished = False
