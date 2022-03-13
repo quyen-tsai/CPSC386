@@ -14,11 +14,14 @@ from settings import Settings
 from sound import Sound
 from mystery import Mystery
 from pygame import time
+from obstacle import Blockers
+from highscore import HighScorePage
 class Game:
     RED = (255, 0, 0)
 
 
     def __init__(self):
+
         pg.init()
         self.timer = time.get_ticks()
         self.settings = Settings()
@@ -36,6 +39,12 @@ class Game:
         self.ship.set_lasers(self.lasers)
         self.Mys = Group()
         self.Mys.add(Mystery(game=self))
+        self.blocker = Blockers(game=self)
+        self.blocker.create_blockers()
+        self.landing_page = LandingPage(game=self)
+        self.hc = HighScorePage(game = self)
+        self.MENU, self.HIGH, self.PLAY = True, False, False
+
     def restart(self):
         if self.stats.ships_left == 0: 
           self.game_over()
@@ -48,6 +57,8 @@ class Game:
         self.ship.center_bottom()
         self.ship.reset_timer()
         self.alien_fleet.enemy_bullets.empty()
+        self.blocker.kill()
+        self.blocker.create_blockers()
         self.update()
         self.draw()
         sleep(0.5)
@@ -57,6 +68,9 @@ class Game:
         self.alien_fleet.update()
         self.lasers.update()
         self.sb.update()
+        self.blocker.check_collide()
+
+
 
     def draw(self):
         self.screen.fill(self.bg_color)
@@ -66,16 +80,24 @@ class Game:
         for mystery in self.Mys:
             mystery.update()
         self.sb.draw()
+        self.blocker.update()
         pg.display.flip()
 
     def play(self):
         self.finished = False
         self.sound.play_bg()
         while not self.finished:
-            self.update()
-            self.draw()
-            gf.check_events(game=self)   # exits game if QUIT pressed
+            if self.MENU:
+                self.landing_page.show()
+            if self.HIGH:
+                self.hc.show()
+            if self.PLAY:
+                self.update()
+                self.draw()
+                gf.check_events(game=self)   # exits game if QUIT pressed
         self.game_over()
+
+
 
     def game_over(self):
       self.sound.play_game_over()
@@ -84,8 +106,6 @@ class Game:
 
 def main():
     g = Game()
-    lp = LandingPage(game=g)
-    lp.show()
     g.play()
 
 

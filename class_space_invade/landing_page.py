@@ -26,6 +26,7 @@ class LandingPage:
     ufo_imgs = [pg.image.load(f'images/alien4_{n}.png') for n in range(4)]
     ufo_imgs  = [pg.transform.scale(image, (57, 58)) for image in ufo_imgs]
     def __init__(self, game):
+        self.game = game
         self.screen = game.screen
         self.landing_page_finished = False
 
@@ -65,7 +66,8 @@ class LandingPage:
         self.ufo = Alien(game=game, image_list=LandingPage.ufo_imgs, 
                                v=Vector(), ul=(centerx - 140, 565))
 
-        self.hover = False
+        self.hover_mouse = False
+        self.hover_high = False
 
     def get_text(self, font, msg, color): return font.render(msg, True, color, BLACK)
 
@@ -75,33 +77,50 @@ class LandingPage:
         rect.centery = centery
         return rect
 
-    def mouse_on_button(self):
+    def mouse_on_play_button(self):
         mouse_x, mouse_y = pg.mouse.get_pos()
         return self.play_button.rect.collidepoint(mouse_x, mouse_y)
-    
+
+    def mouse_on_high_button(self):
+        mouse_x, mouse_y = pg.mouse.get_pos()
+        return self.high_score_button.rect.collidepoint(mouse_x, mouse_y)
+
     def check_events(self):
         for e in pg.event.get():
             if e.type == pg.QUIT:
                 sys.exit()
-            if e.type == pg.KEYUP and e.key == pg.K_p:   # pretend PLAY BUTTON pressed
-                self.landing_page_finished = True        
+            if e.type == pg.KEYUP and e.key == pg.K_p:  # pretend PLAY BUTTON pressed
+                self.game.MENU = False
+                self.game.PLAY = True
             elif e.type == pg.MOUSEBUTTONDOWN:
-                if self.mouse_on_button():
-                    self.landing_page_finished = True
+                if self.mouse_on_play_button():
+                    self.game.MENU = False
+                    self.game.PLAY = True
+                    self.game.HIGH = False
+                if self.mouse_on_high_button():
+                    self.game.MENU = False
+                    self.game.HIGH = True
+                    self.game.PLAY = False
             elif e.type == pg.MOUSEMOTION:
-                if self.mouse_on_button() and not self.hover:
+                if self.mouse_on_play_button() and not self.hover_mouse:
                     self.play_button.toggle_colors()
-                    self.hover = True
-                elif not self.mouse_on_button() and self.hover:
+                    self.hover_mouse = True
+                elif not self.mouse_on_play_button() and self.hover_mouse:
                     self.play_button.toggle_colors()
-                    self.hover = False
+                    self.hover_mouse = False
+                if self.mouse_on_high_button() and not self.hover_high:
+                    self.high_score_button.toggle_colors()
+                    self.hover_high = True
+                elif not self.mouse_on_high_button() and self.hover_high:
+                    self.high_score_button.toggle_colors()
+                    self.hover_high = False
 
 
     def update(self):       # TODO make aliens move
         pass 
 
     def show(self):
-        while not self.landing_page_finished:
+        while self.game.MENU:
             self.update()
             self.draw()
             self.check_events()   # exits game if QUIT pressed

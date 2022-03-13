@@ -3,30 +3,30 @@ from pygame.sprite import Group
 from ship import Ship
 
 
-DARK_GREY = (30, 30, 30)
+WHITE = (255, 255, 255)
 
 class SbElement:
-    def __init__(self, screen, bg_color, ul, font, get_score, round=True):
+    def __init__(self, screen, bg_color, ul, font, get_score, highscore, round=True):
         self.screen = screen
         self.screen_rect = screen.get_rect()
         self.bg_color = bg_color
         self.ul = ul
         self.font = font
         self.round = round
-        self.text_color = DARK_GREY
+        self.text_color = WHITE
         self.image, self.rect = None, None
         self.get_score = get_score
-        self.last_score = self.get_score()
-        self.update() 
+        self.high_score = highscore
+        self.update()
+
+
 
     def update(self): 
         score = self.get_score()
-        if score != 0 and self.last_score == score: return
-
-        self.last_score = score
-        score_str = str(score)
-        if self.round:
-            score_str = f'{int(round(score, -1)):,}'
+        if self.high_score:
+            score_str = f'HIGH SCORE: {score}'
+        else:
+            score_str = str(score)
         self.score_image = self.font.render(score_str, True, 
                                             self.text_color, self.bg_color)
         self.score_rect = self.score_image.get_rect()
@@ -51,13 +51,13 @@ class Scoreboard():
 
         self.score = SbElement(screen=screen, bg_color=game.bg_color,
                                ul=(sr.right - 40, 20), font=font, 
-                               get_score=self.stats.get_score)
+                               get_score=self.stats.get_score, highscore=False)
         self.highscore = SbElement(screen=screen, bg_color=game.bg_color,
-                                   ul=(sr.centerx, 20), font=font, 
-                                   get_score=self.stats.get_highscore)
+                                   ul=(sr.centerx - 60, 20), font=font,
+                                   get_score=self.stats.get_highscore,highscore=True)
         self.level = SbElement(screen=screen, bg_color=game.bg_color,
                                    ul=(sr.right - 40, 50), font=font, 
-                                   get_score=self.stats.get_level, round=False)
+                                   get_score=self.stats.get_level, round=False,highscore=False)
 
         self.ships = Group()
         self.update()

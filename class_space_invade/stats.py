@@ -7,6 +7,13 @@ class Stats:
         self.score = 0
         self.highscore = 0    # TODO: read from/write to file
         self.level = 0
+        self.f = open('highscore.txt', 'r+')
+        self.tscore = self.f.read()
+        if (self.tscore == ''):
+            self.f.write('0')
+        else:
+            self.highscore = int(self.tscore)
+        self.f.close()
 
     def get_score(self): return self.score
     def get_highscore(self): return self.highscore

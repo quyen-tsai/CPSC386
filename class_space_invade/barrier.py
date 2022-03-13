@@ -26,7 +26,8 @@ class Barriers:
 
 class Barrier(Sprite):
     img_list = []
-    def __init__(self, game, ul, wh): 
+    def __init__(self, game, ul, wh):
+        Sprite.__init__(self)
         self.game = game
         self.barrier_elements = Group()
         self.ul = ul
@@ -49,7 +50,8 @@ class Barrier(Sprite):
 
 
 class BarrierElement(Sprite):
-    def __init__(self, game, img_list, ul, wh): 
+    def __init__(self, game, img_list, ul, wh):
+        Sprite.__init__(self)
         self.ul = ul
         self.wh = wh
         self.rect = pg.Rect(ul[0], ul[1], wh[0], wh[1])

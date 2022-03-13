@@ -48,6 +48,10 @@ class Ship(Sprite):
     self.stats.ship_hit()
     if self.stats.ships_left == 0:
       self.game.finished = True
+      if int(self.game.stats.tscore) < self.game.stats.highscore:
+        f = open('highscore.txt', 'w')
+        f.write(str(self.game.stats.highscore))
+        f.close()
     self.dying = False
     self.game.restart()
 

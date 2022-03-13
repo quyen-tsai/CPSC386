@@ -34,6 +34,7 @@ class Lasers:
           if not alien.dying: alien.hit()
 
 
+
         for mystery in pg.sprite.groupcollide(self.game.Mys, self.lasers, False, True):
             mystery.mysteryEntered.stop()
             mystery.hit()
